@@ -269,13 +269,19 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
                   {/* Category Name */}
                   <span className="font-semibold text-gray-900 flex-1">{category.name}</span>
                   
-                  {/* Move Buttons */}
-                  <div style={{ 
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '3px',
-                    marginRight: '8px'
-                  }}>
+                  {/* Move Buttons - ABSOLUTELY VISIBLE */}
+                  <div 
+                    style={{ 
+                      display: 'flex !important',
+                      flexDirection: 'column',
+                      gap: '4px',
+                      marginRight: '10px',
+                      minWidth: '25px',
+                      visibility: 'visible',
+                      opacity: 1
+                    }}
+                  >
+                    <span style={{ fontSize: '8px', color: 'red', display: 'block' }}>↑↓</span>
                     <button
                       type="button"
                       onClick={(e) => {
@@ -285,22 +291,25 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
                       }}
                       disabled={index === 0}
                       style={{
-                        width: '22px',
-                        height: '22px',
-                        display: 'flex',
+                        width: '25px',
+                        height: '25px',
+                        display: 'flex !important',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: index === 0 ? '#d1d5db' : '#9333ea',
+                        backgroundColor: index === 0 ? '#9ca3af' : '#9333ea',
                         color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '13px',
+                        border: '2px solid',
+                        borderColor: index === 0 ? '#6b7280' : '#7c3aed',
+                        borderRadius: '5px',
+                        fontSize: '16px',
                         fontWeight: 'bold',
                         cursor: index === 0 ? 'not-allowed' : 'pointer',
                         padding: 0,
                         margin: 0,
                         lineHeight: 1,
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        visibility: 'visible',
+                        opacity: 1
                       }}
                       onMouseEnter={(e) => {
                         if (index !== 0) {
@@ -325,22 +334,25 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
                       }}
                       disabled={index === categories.length - 1}
                       style={{
-                        width: '22px',
-                        height: '22px',
-                        display: 'flex',
+                        width: '25px',
+                        height: '25px',
+                        display: 'flex !important',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: index === categories.length - 1 ? '#d1d5db' : '#ec4899',
+                        backgroundColor: index === categories.length - 1 ? '#9ca3af' : '#ec4899',
                         color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '13px',
+                        border: '2px solid',
+                        borderColor: index === categories.length - 1 ? '#6b7280' : '#db2777',
+                        borderRadius: '5px',
+                        fontSize: '16px',
                         fontWeight: 'bold',
                         cursor: index === categories.length - 1 ? 'not-allowed' : 'pointer',
                         padding: 0,
                         margin: 0,
                         lineHeight: 1,
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        visibility: 'visible',
+                        opacity: 1
                       }}
                       onMouseEnter={(e) => {
                         if (index !== categories.length - 1) {
