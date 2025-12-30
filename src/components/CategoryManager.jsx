@@ -269,13 +269,11 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
                   {/* Category Name */}
                   <span className="font-semibold text-gray-900 flex-1">{category.name}</span>
                   
-                  {/* Move Buttons - FORCE VISIBLE */}
+                  {/* Move Buttons */}
                   <div style={{ 
-                    display: 'block',
-                    width: '30px',
-                    height: '45px',
-                    border: '2px solid red',
-                    backgroundColor: 'yellow',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '3px',
                     marginRight: '8px'
                   }}>
                     <button
@@ -287,20 +285,32 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
                       }}
                       disabled={index === 0}
                       style={{
-                        width: '24px',
-                        height: '20px',
-                        display: 'block',
-                        backgroundColor: index === 0 ? '#999' : '#9333ea',
+                        width: '22px',
+                        height: '22px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: index === 0 ? '#d1d5db' : '#9333ea',
                         color: 'white',
-                        border: '1px solid #000',
-                        borderRadius: '3px',
-                        fontSize: '14px',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '13px',
                         fontWeight: 'bold',
                         cursor: index === 0 ? 'not-allowed' : 'pointer',
                         padding: 0,
-                        margin: '0 0 2px 0',
-                        lineHeight: '20px',
-                        textAlign: 'center'
+                        margin: 0,
+                        lineHeight: 1,
+                        boxSizing: 'border-box'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (index !== 0) {
+                          e.currentTarget.style.backgroundColor = '#7c3aed'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (index !== 0) {
+                          e.currentTarget.style.backgroundColor = '#9333ea'
+                        }
                       }}
                       title="Move up"
                     >
@@ -315,20 +325,32 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
                       }}
                       disabled={index === categories.length - 1}
                       style={{
-                        width: '24px',
-                        height: '20px',
-                        display: 'block',
-                        backgroundColor: index === categories.length - 1 ? '#999' : '#ec4899',
+                        width: '22px',
+                        height: '22px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: index === categories.length - 1 ? '#d1d5db' : '#ec4899',
                         color: 'white',
-                        border: '1px solid #000',
-                        borderRadius: '3px',
-                        fontSize: '14px',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '13px',
                         fontWeight: 'bold',
                         cursor: index === categories.length - 1 ? 'not-allowed' : 'pointer',
                         padding: 0,
                         margin: 0,
-                        lineHeight: '20px',
-                        textAlign: 'center'
+                        lineHeight: 1,
+                        boxSizing: 'border-box'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (index !== categories.length - 1) {
+                          e.currentTarget.style.backgroundColor = '#db2777'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (index !== categories.length - 1) {
+                          e.currentTarget.style.backgroundColor = '#ec4899'
+                        }
                       }}
                       title="Move down"
                     >
