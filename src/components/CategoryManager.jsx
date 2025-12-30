@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchCategories, createCategory, updateCategory, deleteCategory } from '../services/categoryService'
+import { fetchCategories, createCategory, updateCategory, deleteCategory, updateCategoryOrder } from '../services/categoryService'
 
 const CategoryManager = ({ onClose, onCategorySelect }) => {
   const [categories, setCategories] = useState([])
@@ -32,10 +32,23 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
 
     try {
       if (editingCategory) {
-        const { error: updateError } = await updateCategory(editingCategory.id, formData)
+        // Preserve display_order when editing
+        const updateData = {
+          ...formData,
+          display_order: editingCategory.display_order
+        }
+        const { error: updateError } = await updateCategory(editingCategory.id, updateData)
         if (updateError) throw updateError
       } else {
-        const { error: createError } = await createCategory(formData)
+        // When creating a new category, set display_order to be after the last category
+        const maxOrder = categories.length > 0 
+          ? Math.max(...categories.map(c => c.display_order || 0))
+          : -1
+        const newCategoryData = {
+          ...formData,
+          display_order: maxOrder + 1
+        }
+        const { error: createError } = await createCategory(newCategoryData)
         if (createError) throw createError
       }
       
@@ -70,6 +83,60 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
     setEditingCategory(null)
     setFormData({ name: '', color: '#9333EA' })
     setError(null)
+  }
+
+  const handleMoveUp = async (index) => {
+    if (index === 0) return // Already at top
+
+    const newCategories = [...categories]
+    const temp = newCategories[index]
+    newCategories[index] = newCategories[index - 1]
+    newCategories[index - 1] = temp
+
+    // Update display_order for all affected categories
+    const categoryOrders = newCategories.map((category, idx) => ({
+      id: category.id,
+      display_order: idx
+    }))
+
+    setError(null)
+    const { error: updateError } = await updateCategoryOrder(categoryOrders)
+    if (updateError) {
+      setError('Failed to update category order. Please try again.')
+      await loadCategories()
+    } else {
+      setCategories(newCategories.map((cat, idx) => ({
+        ...cat,
+        display_order: idx
+      })))
+    }
+  }
+
+  const handleMoveDown = async (index) => {
+    if (index === categories.length - 1) return // Already at bottom
+
+    const newCategories = [...categories]
+    const temp = newCategories[index]
+    newCategories[index] = newCategories[index + 1]
+    newCategories[index + 1] = temp
+
+    // Update display_order for all affected categories
+    const categoryOrders = newCategories.map((category, idx) => ({
+      id: category.id,
+      display_order: idx
+    }))
+
+    setError(null)
+    const { error: updateError } = await updateCategoryOrder(categoryOrders)
+    if (updateError) {
+      setError('Failed to update category order. Please try again.')
+      await loadCategories()
+    } else {
+      setCategories(newCategories.map((cat, idx) => ({
+        ...cat,
+        display_order: idx
+      })))
+    }
   }
 
   const presetColors = [
@@ -179,26 +246,107 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
             </div>
           ) : (
             <div className="space-y-2">
-              {categories.map((category) => (
+              <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg">
+                <div className="text-sm text-purple-800 flex items-center gap-3 font-semibold">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                  <span>Use the <strong className="text-purple-900">↑ and ↓ arrow buttons</strong> to reorder categories</span>
+                </div>
+              </div>
+              {categories.map((category, index) => (
                 <div
                   key={category.id}
-                  className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-purple-300 transition-all"
+                  className="flex items-center gap-3 p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-purple-300 transition-all"
+                  style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-6 h-6 rounded-full border-2 border-gray-300"
-                      style={{ backgroundColor: category.color || '#9333EA' }}
-                    />
-                    <span className="font-semibold text-gray-900">{category.name}</span>
-                  </div>
-                  <div className="flex gap-2">
+                  {/* Category Color Dot */}
+                  <div
+                    className="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0"
+                    style={{ backgroundColor: category.color || '#9333EA' }}
+                  />
+                  
+                  {/* Category Name */}
+                  <span className="font-semibold text-gray-900 flex-1">{category.name}</span>
+                  
+                  {/* Move Buttons - FORCE VISIBLE */}
+                  <div style={{ 
+                    display: 'block',
+                    width: '30px',
+                    height: '45px',
+                    border: '2px solid red',
+                    backgroundColor: 'yellow',
+                    marginRight: '8px'
+                  }}>
                     <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleMoveUp(index)
+                      }}
+                      disabled={index === 0}
+                      style={{
+                        width: '24px',
+                        height: '20px',
+                        display: 'block',
+                        backgroundColor: index === 0 ? '#999' : '#9333ea',
+                        color: 'white',
+                        border: '1px solid #000',
+                        borderRadius: '3px',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        cursor: index === 0 ? 'not-allowed' : 'pointer',
+                        padding: 0,
+                        margin: '0 0 2px 0',
+                        lineHeight: '20px',
+                        textAlign: 'center'
+                      }}
+                      title="Move up"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleMoveDown(index)
+                      }}
+                      disabled={index === categories.length - 1}
+                      style={{
+                        width: '24px',
+                        height: '20px',
+                        display: 'block',
+                        backgroundColor: index === categories.length - 1 ? '#999' : '#ec4899',
+                        color: 'white',
+                        border: '1px solid #000',
+                        borderRadius: '3px',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        cursor: index === categories.length - 1 ? 'not-allowed' : 'pointer',
+                        padding: 0,
+                        margin: 0,
+                        lineHeight: '20px',
+                        textAlign: 'center'
+                      }}
+                      title="Move down"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      type="button"
                       onClick={() => handleEdit(category)}
                       className="px-3 py-1.5 text-purple-600 hover:bg-purple-50 rounded-lg font-medium transition-colors"
                     >
                       Edit
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDelete(category.id)}
                       className="px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors"
                     >

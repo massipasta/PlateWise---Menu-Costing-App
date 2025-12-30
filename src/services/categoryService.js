@@ -85,6 +85,34 @@ export const deleteCategory = async (categoryId) => {
   }
 }
 
+/**
+ * Update the display order of multiple categories
+ */
+export const updateCategoryOrder = async (categoryOrders) => {
+  try {
+    // Update each category's display_order
+    const updates = categoryOrders.map(({ id, display_order }) =>
+      supabase
+        .from('categories')
+        .update({ display_order, updated_at: new Date().toISOString() })
+        .eq('id', id)
+    )
+
+    const results = await Promise.all(updates)
+    
+    // Check for any errors
+    const errors = results.filter(r => r.error)
+    if (errors.length > 0) {
+      throw errors[0].error
+    }
+
+    return { data: true, error: null }
+  } catch (error) {
+    console.error('Error updating category order:', error)
+    return { data: null, error }
+  }
+}
+
 
 
 

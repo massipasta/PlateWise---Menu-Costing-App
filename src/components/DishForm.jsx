@@ -17,6 +17,13 @@ const DishForm = ({ dish, onSave, onCancel, saving = false }) => {
     loadCategories()
   }, [])
 
+  // Reload categories when form opens (in case new categories were created)
+  useEffect(() => {
+    if (dish) {
+      loadCategories()
+    }
+  }, [dish])
+
   useEffect(() => {
     if (dish) {
       setName(dish.name || '')
@@ -106,44 +113,80 @@ const DishForm = ({ dish, onSave, onCancel, saving = false }) => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Category <span className="text-gray-400 font-normal">(optional)</span>
-            </label>
+          <div className="bg-purple-50/50 p-4 rounded-xl border-2 border-purple-100">
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-sm font-semibold text-gray-700">
+                Category Assignment
+              </label>
+              {categories.length > 0 && (
+                <span className="text-xs text-gray-500">
+                  {categories.length} {categories.length === 1 ? 'category' : 'categories'} available
+                </span>
+              )}
+            </div>
             {categories.length === 0 ? (
-              <div className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-500 text-sm">
-                No categories available. Create categories in the Categories section.
+              <div className="space-y-3">
+                <div className="w-full px-4 py-3 border-2 border-dashed border-purple-300 rounded-xl bg-white text-gray-600 text-sm">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    No categories available yet
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Click the "Categories" button in the header to create your first category, then come back here to assign this dish.
+                </p>
               </div>
             ) : (
-              <div className="relative">
-                <select
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-300 transition-all bg-white text-gray-900 appearance-none cursor-pointer"
-                >
-                  <option value="">No Category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id} className="text-gray-900">
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                {/* Custom dropdown arrow */}
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+              <div className="space-y-3">
+                <div className="relative">
+                  <select
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all bg-white text-gray-900 appearance-none cursor-pointer font-medium"
+                  >
+                    <option value="">Select a category (optional)</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id} className="text-gray-900">
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom dropdown arrow */}
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
-                {/* Show selected category color indicator */}
-                {categoryId && categories.find(c => c.id === categoryId) && (
-                  <div className="mt-2 flex items-center gap-2 text-sm">
+                {/* Show selected category with visual indicator */}
+                {categoryId && categories.find(c => c.id === categoryId) ? (
+                  <div className="flex items-center gap-3 px-4 py-2.5 bg-white border-2 border-purple-200 rounded-lg">
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="w-4 h-4 rounded-full shadow-sm"
                       style={{ backgroundColor: categories.find(c => c.id === categoryId)?.color || '#9333EA' }}
                     />
-                    <span className="text-gray-600">
-                      Selected: {categories.find(c => c.id === categoryId)?.name}
-                    </span>
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">
+                        {categories.find(c => c.id === categoryId)?.name}
+                      </div>
+                      <div className="text-xs text-gray-500">This dish will be assigned to this category</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCategoryId('')}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      title="Remove category"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-500 px-1">
+                    💡 Tip: Assigning a category helps organize your dishes and filter them later
                   </div>
                 )}
               </div>
